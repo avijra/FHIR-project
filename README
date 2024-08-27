@@ -1,0 +1,133 @@
+
+
+This project integrates Neo4j, LlamaIndex, and vLLM to provide a powerful system for ingesting JSON data, storing it in a graph database, and performing AI-powered queries. The application is designed to run on OpenShift and consists of a frontend service, a backend service, and a Neo4j database.
+
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Project Structure](#project-structure)
+3. [Installation](#installation)
+   - [Setting up OpenShift](#setting-up-openshift)
+   - [Building and Pushing Docker Images](#building-and-pushing-docker-images)
+   - [Deploying to OpenShift](#deploying-to-openshift)
+4. [Usage](#usage)
+5. [Configuration](#configuration)
+6. [Troubleshooting](#troubleshooting)
+
+## Prerequisites
+
+- OpenShift CLI (`oc`) installed and configured
+- Docker installed
+- Access to an OpenShift cluster
+- Node.js and npm (for local development of the frontend)
+- Python 3.9+ (for local development of the backend)
+- Access to a container registry (e.g., Docker Hub)
+
+## Project Structure
+project-root/
+├── frontend/
+│ ├── Dockerfile
+│ ├── package.json
+│ ├── server.js
+│ └── public/
+│ └── index.html
+├── backend/
+│ ├── Dockerfile
+│ ├── requirements.txt
+│ └── app.py
+├── database/
+│ └── neo4j-deployment.yaml
+└── openshift/
+├── frontend-deployment.yaml
+├── backend-deployment.yaml
+└── route.yaml
+
+## Installation
+
+### Setting up OpenShift
+
+1. Log in to your OpenShift cluster:
+   ```
+   oc login --token=<your-token> --server=<your-server-url>
+   ```
+
+2. Create a new project:
+   ```
+   oc new-project neo4j-llamaindex-vllm
+   ```
+
+### Building and Pushing Docker Images
+
+1. Navigate to the frontend directory and build the Docker image:
+   ```
+   cd frontend
+   docker build -t <your-registry>/frontend:latest .
+   docker push <your-registry>/frontend:latest
+   ```
+
+2. Navigate to the backend directory and build the Docker image:
+   ```
+   cd ../backend
+   docker build -t <your-registry>/backend:latest .
+   docker push <your-registry>/backend:latest
+   ```
+
+Replace `<your-registry>` with your container registry URL.
+
+### Deploying to OpenShift
+
+1. Create Neo4j secrets:
+   ```
+   oc create secret generic neo4j-secrets --from-literal=neo4j-user=neo4j --from-literal=neo4j-password=your_password
+   ```
+
+2. Apply the OpenShift configurations:
+   ```
+   oc apply -f database/neo4j-deployment.yaml
+   oc apply -f openshift/backend-deployment.yaml
+   oc apply -f openshift/frontend-deployment.yaml
+   oc apply -f openshift/route.yaml
+   ```
+
+3. Wait for all pods to be ready:
+   ```
+   oc get pods -w
+   ```
+
+4. Get the route URL:
+   ```
+   oc get route frontend-route -o jsonpath='{.spec.host}'
+   ```
+
+## Usage
+
+1. Access the application using the route URL obtained in the last step of deployment.
+2. Use the web interface to upload JSON files and perform queries.
+3. JSON files will be ingested into the Neo4j database.
+4. Queries will be processed using LlamaIndex and vLLM, providing AI-powered responses.
+
+## Configuration
+
+- Frontend: Environment variables can be set in the `frontend-deployment.yaml` file.
+- Backend: Environment variables for Neo4j connection and vLLM model can be set in the `backend-deployment.yaml` file.
+- Neo4j: Database configuration can be adjusted in the `neo4j-deployment.yaml` file.
+
+## Troubleshooting
+
+1. If pods are not starting, check the pod logs:
+   ```
+   oc logs <pod-name>
+   ```
+
+2. For persistent issues, describe the pod for more details:
+   ```
+   oc describe pod <pod-name>
+   ```
+
+3. Ensure that the Neo4j password in the secret matches the one in the Neo4j deployment.
+
+4. Verify that the vLLM model specified in the backend environment variables is available and compatible with your setup.
+
+5. For issues with the frontend not connecting to the backend, ensure that the service names in the frontend code match the OpenShift service names.
+
+For further assistance, please open an issue in the project repository.
