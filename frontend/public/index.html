@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neo4j LlamaIndex vLLM UI</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #333; }
+        form { margin-bottom: 20px; }
+        input[type="file"], input[type="text"] { margin-bottom: 10px; }
+        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        #result { margin-top: 20px; padding: 10px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>Neo4j LlamaIndex vLLM UI</h1>
+    
+    <form id="uploadForm">
+        <h2>Upload JSON Files</h2>
+        <input type="file" name="jsonFiles" multiple accept=".json">
+        <button type="submit">Upload and Ingest</button>
+    </form>
+
+    <form id="queryForm">
+        <h2>Query</h2>
+        <input type="text" name="query" placeholder="Enter your query" style="width: 100%;">
+        <button type="submit">Submit Query</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const response = await fetch('/upload', { method: 'POST', body: formData });
+            const result = await response.json();
+            document.getElementById('result').innerText = result.message;
+        });
+
+        document.getElementById('queryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const response = await fetch('/query', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.fromEntries(formData))
+            });
+            const result = await response.json();
+            document.getElementById('result').innerText = result.result;
+        });
+    </script>
+</body>
+</html>
