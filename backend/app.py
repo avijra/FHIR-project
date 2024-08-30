@@ -12,8 +12,8 @@ app = Flask(__name__)
 
 NEO4J_URI = os.getenv("NEO4J_URI", "bolt://neo4j-service:7687")
 NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
-NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "password")
-VLLM_MODEL = os.getenv("VLLM_MODEL", "your_vllm_model_name")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "neo4j")
+VLLM_MODEL = os.getenv("VLLM_MODEL", "vllm")
 
 driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 vllm_model = LLM(model=VLLM_MODEL)
