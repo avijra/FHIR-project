@@ -1,6 +1,0 @@
-Flask==2.0.1
-neo4j==4.3.4
-llama-index==0.6.9
-vllm==0.1.4
-transformers==4.21.0
-torch==1.9.0
